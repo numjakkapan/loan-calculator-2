@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="แอปพลิเคชันคำนวณสินเชื่อแบบลดต้นลดดอก">
+    <title>คำนวณสินเชื่อ</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%234CAF50' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'>฿</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%234CAF50' width='180' height='180'/><text x='50%' y='50%' font-size='90' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'>฿</text></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 1rem;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+
+        .form-section {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            color: #333;
+            font-family: inherit;
+        }
+
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-group .form-group {
+            margin-bottom: 0;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 13px;
+        }
+
+        .info-text {
+            color: #2e7d32;
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: #45a049;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        button.secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .table-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .copy-section {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        textarea {
+            width: 100%;
+            height: auto;
+            min-height: 110px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            margin-bottom: 10px;
+            color: #333;
+            background: white;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .copy-btn {
+            width: 100%;
+            background: #4CAF50;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-msg {
+            color: #2e7d32;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        .success-msg.show {
+            display: block;
+        }
+
+        .label-section {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1.25rem;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+
+        .install-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .install-banner.hidden {
+            display: none;
+        }
+
+        .install-btn {
+            background: #ffc107;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .install-btn:hover {
+            background: #ffb300;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="installBanner" class="install-banner hidden">
+            <span>📲 ติดตั้งแอปพลิเคชันลงโทรศัพท์ของคุณ</span>
+            <button class="install-btn" id="installBtn">ติดตั้ง</button>
+        </div>
+
+        <div class="header">
+            <h1>💰 คำนวณสินเชื่อ</h1>
+            <p>คำนวณสินเชื่อแบบลดต้นลดดอก</p>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label>จำนวนเงินกู้ (บาท)</label>
+                <input type="number" id="principal" placeholder="เช่น 100000" value="100000">
+            </div>
+
+            <div class="form-group">
+                <label>อัตราดอกเบี้ยต่อปี (%)</label>
+                <input type="number" id="rate" placeholder="เช่น 5" value="5" step="0.01">
+            </div>
+
+            <div class="input-group">
+                <div class="form-group">
+                    <label>ระยะเวลากู้ (ปี)</label>
+                    <input type="number" id="years" placeholder="เช่น 3" value="3" min="1">
+                </div>
+                <div class="form-group">
+                    <label>จำนวนงวด (เดือน)</label>
+                    <input type="number" id="numMonths" placeholder="36" value="36" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>วันเริ่มกู้</label>
+                <input type="date" id="startDate">
+            </div>
+
+            <div class="form-group">
+                <label>วันชำระงวดแรก</label>
+                <select id="firstPaymentDate">
+                    <option value="auto_same">อัตโนมัติ: วันสิ้นเดือนเดียวกัน</option>
+                    <option value="auto_next">อัตโนมัติ: วันสิ้นเดือนถัดไป</option>
+                    <option value="custom">กรอกเอง</option>
+                </select>
+                <input type="date" id="customPaymentDate" class="hidden" style="margin-top: 8px;">
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="stat-card">
+                <div class="stat-label">ยอดรวมดอกเบี้ย</div>
+                <div class="stat-value" id="totalInterest">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">รวมชำระทั้งสิ้น</div>
+                <div class="stat-value" id="totalPayment">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">วงเงินรายเดือน</div>
+                <div class="stat-value" id="monthlyPayment">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">จำนวนงวด</div>
+                <div class="stat-value" id="totalMonths">-</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p class="info-text">💡 ค่างวดเท่ากันทุกงวด ดอกเบี้ยคำนวณแบบเป็นวัน (365 วัน/ปี)</p>
+        </div>
+
+        <div class="table-container hidden" id="tableContainer">
+            <table>
+                <thead>
+                    <tr>
+                        <th>งวด</th>
+                        <th>วันชำระ</th>
+                        <th>จำนวนวัน</th>
+                        <th>ยอดคงเหลือต้น</th>
+                        <th>ดอกเบี้ย</th>
+                        <th>เงินต้น</th>
+                        <th>ชำระรวม</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleTable"></tbody>
+            </table>
+        </div>
+
+        <div class="button-group">
+            <button onclick="toggleSchedule()" class="secondary">📊 ดูตารางรายละเอียด</button>
+            <button onclick="calculateLoan()">🔄 คำนวนใหม่</button>
+        </div>
+
+        <div class="copy-section">
+            <span class="label-section">ข้อความส่งให้ลูกค้า</span>
+            <textarea id="messageBox" readonly></textarea>
+            <button class="copy-btn" onclick="copyToClipboard()">
+                📋 คัดลอกข้อความ
+            </button>
+            <div class="success-msg" id="successMsg">✓ คัดลอกเรียบร้อย</div>
+        </div>
+    </div>
+
+    <script>
+        // PWA Install
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.remove('hidden');
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                deferredPrompt = null;
+                document.getElementById('installBanner').classList.add('hidden');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            document.getElementById('installBanner').classList.add('hidden');
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+        }
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('th-TH');
+        }
+
+        function formatCurrency(num) {
+            return Math.round(num).toLocaleString('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function formatThaiDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(date).toLocaleDateString('th-TH', options);
+        }
+
+        function getDaysBetween(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function getLastDayOfMonth(date) {
+            const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+            return new Date(nextMonth - 1);
+        }
+
+        document.getElementById('firstPaymentDate').addEventListener('change', function() {
+            const customDateInput = document.getElementById('customPaymentDate');
+            if (this.value === 'custom') {
+                customDateInput.classList.remove('hidden');
+            } else {
+                customDateInput.classList.add('hidden');
+                customDateInput.value = '';
+            }
+        });
+
+        function calculatePaymentSchedule(principal, annualRate, numMonths, startDate, firstPaymentDate) {
+            const dailyRate = annualRate / 100 / 365;
+            const startDateObj = new Date(startDate);
+
+            let lowPayment = principal / numMonths;
+            let highPayment = principal / numMonths * 2;
+            let regularPayment = (lowPayment + highPayment) / 2;
+
+            for (let iteration = 0; iteration < 100; iteration++) {
+                regularPayment = (lowPayment + highPayment) / 2;
+                let balance = principal;
+                let tempPreviousDate = new Date(startDateObj);
+                let tempCurrentPaymentDate = new Date(firstPaymentDate);
+
+                for (let i = 1; i <= numMonths; i++) {
+                    const daysInPeriod = getDaysBetween(tempPreviousDate, tempCurrentPaymentDate);
+                    const interest = balance * dailyRate * daysInPeriod;
+                    const principalPayment = regularPayment - interest;
+                    balance -= principalPayment;
+
+                    tempPreviousDate = new Date(tempCurrentPaymentDate);
+                    tempCurrentPaymentDate.setMonth(tempCurrentPaymentDate.getMonth() + 1);
+                }
+
+                if (Math.abs(balance) < 0.01) {
+                    break;
+                }
+
+                if (balance > 0) {
+                    lowPayment = regularPayment;
+                } else {
+                    highPayment = regularPayment;
+                }
+            }
+
+            let balance = principal;
+            let tempPreviousDate = new Date(startDateObj);
+            let tempCurrentPaymentDate = new Date(firstPaymentDate);
+            let totalInterest = 0;
+
+            for (let i = 1; i <= numMonths; i++) {
+                const daysInPeriod = getDaysBetween(tempPreviousDate, tempCurrentPaymentDate);
+                const interest = balance * dailyRate * daysInPeriod;
+                totalInterest += interest;
+                const principalPayment = regularPayment - interest;
+                balance -= principalPayment;
+
+                tempPreviousDate = new Date(tempCurrentPaymentDate);
+                tempCurrentPaymentDate.setMonth(tempCurrentPaymentDate.getMonth() + 1);
+            }
+
+            const totalPayment = regularPayment * numMonths;
+
+            return { regularPayment, totalInterest, totalPayment };
+        }
+
+        function calculateLoan() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const annualRate = parseFloat(document.getElementById('rate').value);
+            const years = parseFloat(document.getElementById('years').value);
+            const numMonths = parseFloat(document.getElementById('numMonths').value);
+            const startDate = document.getElementById('startDate').value;
+            const paymentType = document.getElementById('firstPaymentDate').value;
+            const customPaymentDate = document.getElementById('customPaymentDate').value;
+
+            if (isNaN(principal) || isNaN(annualRate) || isNaN(years) || principal <= 0 || years <= 0 || !startDate || isNaN(numMonths) || numMonths <= 0) {
+                alert('กรุณากรอกข้อมูลให้ครบและถูกต้อง');
+                return;
+            }
+
+            if (paymentType === 'custom' && !customPaymentDate) {
+                alert('กรุณากรอกวันชำระงวดแรก');
+                return;
+            }
+
+            let firstPaymentDate = null;
+            if (paymentType === 'auto_same') {
+                const startDateObj = new Date(startDate);
+                firstPaymentDate = getLastDayOfMonth(startDateObj);
+            } else if (paymentType === 'auto_next') {
+                const startDateObj = new Date(startDate);
+                const nextMonth = new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 2, 0);
+                firstPaymentDate = nextMonth;
+            } else {
+                firstPaymentDate = new Date(customPaymentDate);
+            }
+
+            const { regularPayment, totalInterest, totalPayment } = calculatePaymentSchedule(
+                principal,
+                annualRate,
+                numMonths,
+                startDate,
+                firstPaymentDate
+            );
+
+            document.getElementById('monthlyPayment').textContent = formatCurrency(regularPayment);
+            document.getElementById('totalPayment').textContent = formatCurrency(totalPayment);
+            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
+            document.getElementById('totalMonths').textContent = formatNumber(numMonths) + ' งวด';
+
+            generateSchedule(principal, annualRate, numMonths, startDate, firstPaymentDate, regularPayment);
+            generateMessage(principal, annualRate, numMonths, regularPayment);
+        }
+
+        function generateSchedule(principal, annualRate, months, startDate, firstPaymentDate, regularPayment) {
+            let balance = principal;
+            let currentPaymentDate = new Date(firstPaymentDate);
+            let previousDate = new Date(startDate);
+            const rows = [];
+            const dailyRate = annualRate / 100 / 365;
+
+            for (let i = 1; i <= months; i++) {
+                const daysInPeriod = getDaysBetween(previousDate, currentPaymentDate);
+                const interest = balance * dailyRate * daysInPeriod;
+                const principalPayment = regularPayment - interest;
+                balance -= principalPayment;
+
+                if (balance < 0.01) balance = 0;
+
+                const dateStr = formatThaiDate(currentPaymentDate);
+
+                rows.push(`
+                    <tr>
+                        <td>${i}</td>
+                        <td>${dateStr}</td>
+                        <td>${daysInPeriod} วัน</td>
+                        <td>${formatNumber(balance + principalPayment)}</td>
+                        <td>${formatNumber(interest)}</td>
+                        <td>${formatNumber(principalPayment)}</td>
+                        <td>${formatNumber(regularPayment)}</td>
+                    </tr>
+                `);
+
+                previousDate = new Date(currentPaymentDate);
+                currentPaymentDate.setMonth(currentPaymentDate.getMonth() + 1);
+            }
+
+            document.getElementById('scheduleTable').innerHTML = rows.join('');
+        }
+
+        function toggleSchedule() {
+            const container = document.getElementById('tableContainer');
+            container.classList.toggle('hidden');
+        }
+
+        function generateMessage(principal, annualRate, months, regularPayment) {
+            const monthlyRate = (annualRate / 12).toFixed(2);
+            const principalFormatted = Math.round(principal).toLocaleString('th-TH');
+            const paymentFormatted = Math.round(regularPayment).toLocaleString('th-TH');
+
+            const message = `จำนวนเงินกู้: ${principalFormatted} บาท
+ระยะเวลา: ${months} เดือน
+อัตราดอกเบี้ย: ${monthlyRate}% ต่อเดือน
+ชำระเดือนละ: ฿${paymentFormatted}`;
+
+            document.getElementById('messageBox').value = message;
+        }
+
+        function copyToClipboard() {
+            const textarea = document.getElementById('messageBox');
+            textarea.select();
+            document.execCommand('copy');
+
+            const msg = document.getElementById('successMsg');
+            msg.classList.add('show');
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 2000);
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').value = today;
+
+        calculateLoan();
+    </script>
+</body>
+</html>
