@@ -2,720 +2,790 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1a1a1a">
-    <meta name="description" content="แอปพลิเคชันคำนวณสินเชื่อแบบลดต้นลดดอก">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1B5E20">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="แอปพลิเคชันคำนวณสินเชื่อ พิโกไฟแนนซ์">
     <title>คำนวณสินเชื่อ</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%234CAF50' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'>฿</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%234CAF50' width='180' height='180'/><text x='50%' y='50%' font-size='90' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'>฿</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%232E7D32' width='180' height='180' rx='36'/><text x='50%' y='54%' font-size='90' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'>฿</text></svg>">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --green-dark:  #1B5E20;
+            --green-mid:   #2E7D32;
+            --green-main:  #388E3C;
+            --green-light: #A5D6A7;
+            --green-bg:    #E8F5E9;
+            --text-main:   #1A1A1A;
+            --text-soft:   #555;
+            --text-muted:  #999;
+            --surface:     #FFFFFF;
+            --bg:          #F1F8F1;
+            --border:      #DCEDC8;
+            --shadow:      0 2px 12px rgba(27,94,32,0.10);
+            --radius-lg:   16px;
+            --radius-md:   10px;
+            --radius-sm:   8px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+        html { height: 100%; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            padding: 0;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100%;
+            padding-bottom: calc(80px + var(--safe-bottom));
+            overscroll-behavior: none;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
+        /* ── Top bar ─────────────────────────────── */
+        .topbar {
+            background: var(--green-dark);
+            color: #fff;
+            padding: 18px 20px 14px;
+            padding-top: max(18px, env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
+        .topbar-icon { font-size: 26px; }
+        .topbar-title { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+        .topbar-sub { font-size: 11px; opacity: 0.75; margin-top: 1px; }
 
-        .container {
-            max-width: 100%;
-            padding: 1rem;
-            margin: 0 auto;
+        /* ── Product picker ──────────────────────── */
+        .product-section {
+            background: var(--surface);
+            margin: 14px 14px 0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow);
         }
-
-        .header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-main);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
         }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .product-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
         }
-
-        .header p {
-            font-size: 13px;
-            opacity: 0.95;
+        .product-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 13px 14px;
+            cursor: pointer;
+            transition: all 0.18s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            -webkit-user-select: none;
+            user-select: none;
         }
-
-        .form-section {
+        .product-card:active { transform: scale(0.98); }
+        .product-card.selected {
+            border-color: var(--green-main);
+            background: var(--green-bg);
+        }
+        .product-card-left { flex: 1; }
+        .product-name { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .product-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .badge-rate { background: #E8F5E9; color: #2E7D32; }
+        .badge-max  { background: #FFF8E1; color: #F57F17; }
+        .badge-term { background: #E3F2FD; color: #1565C0; }
+        .product-radio {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            margin-left: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.18s;
+        }
+        .product-card.selected .product-radio {
+            border-color: var(--green-main);
+            background: var(--green-main);
+        }
+        .product-card.selected .product-radio::after {
+            content: '';
+            width: 8px; height: 8px;
             background: white;
-            padding: 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 50%;
         }
 
-        .form-group {
-            margin-bottom: 1.25rem;
+        /* ── Form ────────────────────────────────── */
+        .form-section {
+            background: var(--surface);
+            margin: 10px 14px 0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow);
         }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
         label {
             display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 8px;
-        }
-
-        input[type="number"],
-        input[type="date"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 15px;
-            background: white;
-            color: #333;
-            font-family: inherit;
-        }
-
-        input[type="number"]:focus,
-        input[type="date"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .input-group .form-group {
-            margin-bottom: 0;
-        }
-
-        .results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
-            padding: 1.25rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-        }
-
-        .stat-label {
             font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .stat-value {
-            font-size: 22px;
             font-weight: 600;
-            color: #4CAF50;
+            color: var(--text-soft);
+            margin-bottom: 7px;
+            letter-spacing: 0.2px;
+        }
+        .input-wrap { position: relative; }
+        .input-prefix {
+            position: absolute;
+            left: 12px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 16px; /* 16px prevents iOS zoom */
+            background: #fff;
+            color: var(--text-main);
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        input[type="number"].has-prefix { padding-left: 32px; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--green-main);
+            box-shadow: 0 0 0 3px rgba(56,142,60,0.15);
+        }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .row-2 .form-group { margin-bottom: 0; }
+        .hidden { display: none !important; }
+
+        /* ── Summary bar ─────────────────────────── */
+        .summary-bar {
+            background: var(--green-dark);
+            margin: 10px 14px 0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        .summary-bar.show { display: block; }
+        .summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .summary-item { text-align: center; }
+        .summary-label { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+        .summary-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.1; }
+        .summary-value.highlight { color: #A5D6A7; font-size: 24px; }
+        .summary-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 12px 0;
         }
 
-        .info-box {
-            background: #e8f5e9;
-            border-left: 4px solid #4CAF50;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 13px;
-        }
-
-        .info-text {
-            color: #2e7d32;
-            margin: 0;
-        }
-
-        .button-group {
+        /* ── Buttons ─────────────────────────────── */
+        .btn-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 1.5rem;
+            margin: 10px 14px 0;
         }
-
-        button {
+        .btn {
             flex: 1;
-            padding: 14px;
+            padding: 15px;
             border: none;
-            background: #4CAF50;
-            color: white;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.18s;
+            font-family: inherit;
         }
-
-        button:hover {
-            background: #45a049;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
+        .btn:active { transform: scale(0.97); }
+        .btn-primary {
+            background: var(--green-main);
+            color: white;
+            box-shadow: 0 3px 10px rgba(56,142,60,0.35);
         }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .btn-primary:active { background: var(--green-mid); }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--green-main);
+            border: 1.5px solid var(--green-light);
         }
+        .btn-secondary:active { background: var(--green-bg); }
 
-        button.secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        button.secondary:hover {
-            background: #e8e8e8;
-        }
-
-        .table-container {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            overflow-x: auto;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th {
-            background: #f5f5f5;
-            padding: 12px 10px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #555;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
+        /* ── Message / copy ──────────────────────── */
         .copy-section {
-            background: white;
-            padding: 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: var(--surface);
+            margin: 10px 14px 0;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            display: none;
         }
-
+        .copy-section.show { display: block; }
+        .copy-label { font-size: 12px; font-weight: 600; color: var(--text-soft); margin-bottom: 8px; letter-spacing: 0.2px; }
         textarea {
             width: 100%;
-            height: auto;
-            min-height: 110px;
+            min-height: 100px;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
             font-family: 'Courier New', monospace;
-            font-size: 14px;
+            font-size: 13px;
             resize: none;
-            margin-bottom: 10px;
-            color: #333;
-            background: white;
+            color: var(--text-main);
+            background: var(--bg);
             line-height: 1.6;
         }
-
-        textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        .copy-btn {
+        .btn-copy {
             width: 100%;
-            background: #4CAF50;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
+            margin-top: 10px;
+            padding: 14px;
+            background: var(--green-bg);
+            color: var(--green-dark);
+            border: 1.5px solid var(--green-light);
+            border-radius: var(--radius-sm);
             font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: white;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.18s;
         }
-
-        .copy-btn:hover {
-            background: #45a049;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .success-msg {
-            color: #2e7d32;
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
+        .btn-copy:active { background: var(--green-light); }
+        .copy-ok {
             text-align: center;
-        }
-
-        .success-msg.show {
-            display: block;
-        }
-
-        .label-section {
             font-size: 13px;
+            color: var(--green-main);
+            margin-top: 8px;
             font-weight: 500;
-            color: #555;
-            display: block;
-            margin-bottom: 8px;
+            height: 18px;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .header {
-                padding: 1.25rem;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .results {
-                grid-template-columns: 1fr;
-            }
-
-            .stat-card {
-                padding: 1rem;
-            }
-
-            .stat-value {
-                font-size: 20px;
-            }
-
-            button {
-                padding: 12px;
-                font-size: 13px;
-            }
+        /* ── Table modal ─────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
         }
+        .modal-overlay.open { display: flex; }
+        .modal-sheet {
+            background: #fff;
+            width: 100%;
+            max-height: 85vh;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.28s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .modal-title { font-size: 15px; font-weight: 700; }
+        .modal-close {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-soft);
+        }
+        .modal-body { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th {
+            background: var(--green-bg);
+            padding: 10px 8px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--green-dark);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+        th:first-child { text-align: center; }
+        td {
+            padding: 9px 8px;
+            border-bottom: 1px solid #F1F8F1;
+            text-align: right;
+            color: var(--text-soft);
+        }
+        td:first-child { text-align: center; font-weight: 600; color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr.last-row td { background: #FFFDE7; font-weight: 600; }
 
+        /* ── Error ───────────────────────────────── */
+        .err { font-size: 12px; color: #C62828; margin-top: 5px; display: none; }
+        .err.show { display: block; }
+        input.invalid { border-color: #E53935; }
+
+        /* ── Install banner ──────────────────────── */
         .install-banner {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 1.5rem;
+            background: #FFF8E1;
+            border: 1.5px solid #FFD54F;
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            margin: 10px 14px 0;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-size: 13px;
-            color: #856404;
+            color: #795548;
         }
-
-        .install-banner.hidden {
-            display: none;
-        }
-
-        .install-btn {
-            background: #ffc107;
+        .install-banner.hidden { display: none; }
+        .install-banner span { flex: 1; }
+        .btn-install {
+            background: #FFD54F;
             color: #333;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 7px 14px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 12px;
             white-space: nowrap;
-            margin-left: auto;
         }
-
-        .install-btn:hover {
-            background: #ffb300;
-        }
+        .btn-install:active { background: #FFC107; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="installBanner" class="install-banner hidden">
-            <span>📲 ติดตั้งแอปพลิเคชันลงโทรศัพท์ของคุณ</span>
-            <button class="install-btn" id="installBtn">ติดตั้ง</button>
+
+<!-- Top bar -->
+<div class="topbar">
+    <div class="topbar-icon">💰</div>
+    <div>
+        <div class="topbar-title">คำนวณสินเชื่อ</div>
+        <div class="topbar-sub">ลดต้นลดดอก · คำนวณดอกเบี้ยรายวัน</div>
+    </div>
+</div>
+
+<!-- Install banner -->
+<div id="installBanner" class="install-banner hidden">
+    <span>📲 ติดตั้งแอปลงโทรศัพท์</span>
+    <button class="btn-install" id="installBtn">ติดตั้ง</button>
+</div>
+
+<!-- Product picker -->
+<div class="product-section">
+    <div class="section-label">เลือกประเภทสินเชื่อ</div>
+    <div class="product-cards" id="productCards">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<!-- Form -->
+<div class="form-section">
+    <div class="section-label">ข้อมูลการกู้</div>
+
+    <div class="form-group">
+        <label>จำนวนเงินกู้ (บาท)</label>
+        <div class="input-wrap">
+            <span class="input-prefix">฿</span>
+            <input type="number" id="principal" placeholder="0" inputmode="numeric" class="has-prefix">
         </div>
+        <div class="err" id="errPrincipal"></div>
+    </div>
 
-        <div class="header">
-            <h1>💰 คำนวณสินเชื่อ</h1>
-            <p>คำนวณสินเชื่อแบบลดต้นลดดอก</p>
+    <div class="row-2">
+        <div class="form-group">
+            <label>ระยะเวลา (ปี)</label>
+            <input type="number" id="years" placeholder="0" inputmode="decimal" step="0.5" min="0">
         </div>
-
-        <div class="form-section">
-            <div class="form-group">
-                <label>จำนวนเงินกู้ (บาท)</label>
-                <input type="number" id="principal" placeholder="เช่น 100000" value="100000">
-            </div>
-
-            <div class="form-group">
-                <label>อัตราดอกเบี้ยต่อปี (%)</label>
-                <input type="number" id="rate" placeholder="เช่น 5" value="5" step="0.01">
-            </div>
-
-            <div class="input-group">
-                <div class="form-group">
-                    <label>ระยะเวลากู้ (ปี)</label>
-                    <input type="number" id="years" placeholder="เช่น 3" value="3" min="1">
-                </div>
-                <div class="form-group">
-                    <label>จำนวนงวด (เดือน)</label>
-                    <input type="number" id="numMonths" placeholder="36" value="36" min="1">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>วันเริ่มกู้</label>
-                <input type="date" id="startDate">
-            </div>
-
-            <div class="form-group">
-                <label>วันชำระงวดแรก</label>
-                <select id="firstPaymentDate">
-                    <option value="auto_same">อัตโนมัติ: วันสิ้นเดือนเดียวกัน</option>
-                    <option value="auto_next">อัตโนมัติ: วันสิ้นเดือนถัดไป</option>
-                    <option value="custom">กรอกเอง</option>
-                </select>
-                <input type="date" id="customPaymentDate" class="hidden" style="margin-top: 8px;">
-            </div>
+        <div class="form-group">
+            <label>จำนวนงวด</label>
+            <input type="number" id="numMonths" placeholder="0" inputmode="numeric" min="1">
         </div>
+    </div>
 
-        <div class="results">
-            <div class="stat-card">
-                <div class="stat-label">ยอดรวมดอกเบี้ย</div>
-                <div class="stat-value" id="totalInterest">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">รวมชำระทั้งสิ้น</div>
-                <div class="stat-value" id="totalPayment">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">วงเงินรายเดือน</div>
-                <div class="stat-value" id="monthlyPayment">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">จำนวนงวด</div>
-                <div class="stat-value" id="totalMonths">-</div>
-            </div>
+    <div class="form-group" style="margin-top:14px;">
+        <label>วันเริ่มกู้</label>
+        <input type="date" id="startDate">
+    </div>
+
+    <div class="form-group">
+        <label>วันชำระงวดแรก</label>
+        <select id="paymentType">
+            <option value="auto_same">วันสิ้นเดือนเดียวกัน (อัตโนมัติ)</option>
+            <option value="auto_next">วันสิ้นเดือนถัดไป (อัตโนมัติ)</option>
+            <option value="custom">กรอกวันเอง</option>
+        </select>
+    </div>
+    <div class="form-group hidden" id="customDateGroup">
+        <label>วันชำระงวดแรก (กรอกเอง)</label>
+        <input type="date" id="customPaymentDate">
+        <div class="err" id="errDate">วันชำระต้องอยู่หลังวันเริ่มกู้</div>
+    </div>
+</div>
+
+<!-- Buttons -->
+<div class="btn-group">
+    <button class="btn btn-secondary" onclick="showTable()">📋 ตารางงวด</button>
+    <button class="btn btn-primary" onclick="calculateLoan()">คำนวณ</button>
+</div>
+
+<!-- Summary bar -->
+<div class="summary-bar" id="summaryBar">
+    <div class="summary-row">
+        <div class="summary-item">
+            <div class="summary-label">ชำระต่อเดือน</div>
+            <div class="summary-value highlight" id="sumMonthly">-</div>
         </div>
-
-        <div class="info-box">
-            <p class="info-text">💡 ค่างวดเท่ากันทุกงวด ดอกเบี้ยคำนวณแบบเป็นวัน (365 วัน/ปี)</p>
+        <div class="summary-item">
+            <div class="summary-label">จำนวนงวด</div>
+            <div class="summary-value" id="sumTerms">-</div>
         </div>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-row">
+        <div class="summary-item">
+            <div class="summary-label">รวมดอกเบี้ย</div>
+            <div class="summary-value" id="sumInterest">-</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">รวมชำระทั้งสิ้น</div>
+            <div class="summary-value" id="sumTotal">-</div>
+        </div>
+    </div>
+</div>
 
-        <div class="table-container hidden" id="tableContainer">
+<!-- Copy message -->
+<div class="copy-section" id="copySection">
+    <div class="copy-label">ข้อความส่งให้ลูกค้า</div>
+    <textarea id="messageBox" readonly></textarea>
+    <button class="btn-copy" onclick="copyMsg()">📋 คัดลอกข้อความ</button>
+    <div class="copy-ok" id="copyOk"></div>
+</div>
+
+<!-- Table modal (bottom sheet) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title">📊 ตารางการชำระ</span>
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+        </div>
+        <div class="modal-body">
             <table>
                 <thead>
                     <tr>
                         <th>งวด</th>
                         <th>วันชำระ</th>
-                        <th>จำนวนวัน</th>
-                        <th>ยอดคงเหลือต้น</th>
+                        <th>วัน</th>
+                        <th>คงเหลือ</th>
                         <th>ดอกเบี้ย</th>
                         <th>เงินต้น</th>
-                        <th>ชำระรวม</th>
+                        <th>รวม</th>
                     </tr>
                 </thead>
-                <tbody id="scheduleTable"></tbody>
+                <tbody id="tableBody"></tbody>
             </table>
         </div>
-
-        <div class="button-group">
-            <button onclick="toggleSchedule()" class="secondary">📊 ดูตารางรายละเอียด</button>
-            <button onclick="calculateLoan()">🔄 คำนวนใหม่</button>
-        </div>
-
-        <div class="copy-section">
-            <span class="label-section">ข้อความส่งให้ลูกค้า</span>
-            <textarea id="messageBox" readonly></textarea>
-            <button class="copy-btn" onclick="copyToClipboard()">
-                📋 คัดลอกข้อความ
-            </button>
-            <div class="success-msg" id="successMsg">✓ คัดลอกเรียบร้อย</div>
-        </div>
     </div>
+</div>
 
-    <script>
-        // PWA Install
-        let deferredPrompt;
+<script>
+// ─── Data ─────────────────────────────────────────────────────────
+const PRODUCTS = [
+    { id: 1001, name: 'สินเชื่อเติมสุขเต็มๆ', rate: 36,    maxLoan: 50000, maxTerm: 60  },
+    { id: 1002, name: 'ฉุกเฉินพร้อมใช้',       rate: 31.08, maxLoan: 30000, maxTerm: 24  },
+    { id: 1003, name: 'ลูกค้าใหม่',             rate: 20.28, maxLoan: 10000, maxTerm: 12  },
+];
+let selectedProduct = PRODUCTS[0];
+let lastResult = null;
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installBanner').classList.remove('hidden');
-        });
+// ─── PWA ──────────────────────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); deferredPrompt = e;
+    document.getElementById('installBanner').classList.remove('hidden');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.add('hidden');
+});
+window.addEventListener('appinstalled', () =>
+    document.getElementById('installBanner').classList.add('hidden'));
 
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
-                deferredPrompt = null;
-                document.getElementById('installBanner').classList.add('hidden');
-            }
-        });
+if ('serviceWorker' in navigator)
+    navigator.serviceWorker.register('sw.js').catch(() => {});
 
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
-            document.getElementById('installBanner').classList.add('hidden');
-        });
+// ─── Render product cards ─────────────────────────────────────────
+function renderProducts() {
+    const wrap = document.getElementById('productCards');
+    wrap.innerHTML = PRODUCTS.map(p => `
+        <div class="product-card ${p.id === selectedProduct.id ? 'selected' : ''}"
+             onclick="selectProduct(${p.id})">
+            <div class="product-card-left">
+                <div class="product-name">${p.name}</div>
+                <div class="product-badges">
+                    <span class="badge badge-rate">${p.rate}% / ปี</span>
+                    <span class="badge badge-max">สูงสุด ฿${p.maxLoan.toLocaleString('th-TH')}</span>
+                    <span class="badge badge-term">ไม่เกิน ${p.maxTerm} งวด</span>
+                </div>
+            </div>
+            <div class="product-radio"></div>
+        </div>
+    `).join('');
+}
 
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+function selectProduct(id) {
+    selectedProduct = PRODUCTS.find(p => p.id === id);
+    renderProducts();
+    // auto-fill max values as hints
+    document.getElementById('principal').placeholder = selectedProduct.maxLoan.toLocaleString('th-TH');
+    document.getElementById('numMonths').placeholder = selectedProduct.maxTerm;
+    document.getElementById('years').placeholder = (selectedProduct.maxTerm / 12).toFixed(1);
+}
+
+// ─── Sync years ↔ months ──────────────────────────────────────────
+document.getElementById('years').addEventListener('input', function () {
+    const y = parseFloat(this.value);
+    if (!isNaN(y) && y > 0)
+        document.getElementById('numMonths').value = Math.round(y * 12);
+});
+document.getElementById('numMonths').addEventListener('input', function () {
+    const m = parseInt(this.value);
+    if (!isNaN(m) && m > 0)
+        document.getElementById('years').value = +(m / 12).toFixed(2);
+});
+
+// ─── Payment date selector ────────────────────────────────────────
+document.getElementById('paymentType').addEventListener('change', function () {
+    const g = document.getElementById('customDateGroup');
+    this.value === 'custom' ? g.classList.remove('hidden') : g.classList.add('hidden');
+});
+
+// ─── Helpers ──────────────────────────────────────────────────────
+const fmt  = n => Math.round(n).toLocaleString('th-TH');
+const fmtB = n => '฿' + Math.round(n).toLocaleString('th-TH');
+const fmtDate = d => new Date(d).toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' });
+
+// ปัดขึ้นให้ลงท้ายด้วย 00 หรือ 50 เท่านั้น
+function roundUpTo50(n) {
+    const r = Math.ceil(n);
+    const lastTwo = r % 100;
+    if (lastTwo === 0) return r;
+    if (lastTwo <= 50) return r - lastTwo + 50;
+    return r - lastTwo + 100;
+}
+
+function getDays(a, b) {
+    return Math.round(Math.abs(new Date(b) - new Date(a)) / 86400000);
+}
+function endOfMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+// ─── Core calculation ─────────────────────────────────────────────
+// คำนวณวันชำระงวดที่ offset จาก firstPay
+// - ถ้า firstPay เป็นวันสิ้นเดือน → ทุกงวดเป็นวันสิ้นเดือนของเดือนนั้น
+// - ถ้าไม่ใช่ → ใช้วันเดิม แต่ cap ด้วยจำนวนวันสูงสุดของเดือน (เช่น 31 ม.ค. → 28 ก.พ.)
+function getPayDate(firstPay, offset) {
+    const y = firstPay.getFullYear();
+    const m = firstPay.getMonth();
+    const d = firstPay.getDate();
+    const isEndOfMonth = d === new Date(y, m + 1, 0).getDate();
+    const lastDayOfTarget = new Date(y, m + offset + 1, 0).getDate();
+    const targetDay = isEndOfMonth ? lastDayOfTarget : Math.min(d, lastDayOfTarget);
+    return new Date(y, m + offset, targetDay);
+}
+
+function calcSchedule(principal, annualRate, numMonths, startDate, firstPay) {
+    const dr = annualRate / 100 / 365;
+
+    // Binary search for equal payment
+    let lo = principal / numMonths, hi = principal, pay = 0;
+    for (let i = 0; i < 200; i++) {
+        pay = (lo + hi) / 2;
+        let bal = principal, prev = new Date(startDate);
+        for (let j = 0; j < numMonths; j++) {
+            const cur = getPayDate(firstPay, j);
+            bal -= pay - bal * dr * getDays(prev, cur);
+            prev = cur;
         }
+        if (Math.abs(bal) < 0.001) break;
+        bal > 0 ? lo = pay : hi = pay;
+    }
 
-        function formatNumber(num) {
-            return Math.round(num).toLocaleString('th-TH');
+    // Build full schedule
+    let bal = principal, prev = new Date(startDate);
+    const rows = [];
+    let totalInterest = 0;
+
+    for (let i = 1; i <= numMonths; i++) {
+        const cur = getPayDate(firstPay, i - 1);
+        const days = getDays(prev, cur);
+        const interest = bal * dr * days;
+        const isLast = i === numMonths;
+        let principal_pay, payment;
+        if (isLast) {
+            principal_pay = bal;
+            payment = bal + interest;
+            bal = 0;
+        } else {
+            principal_pay = pay - interest;
+            bal -= principal_pay;
+            if (bal < 0.01) bal = 0;
+            payment = pay;
         }
+        totalInterest += interest;
+        rows.push({ n: i, date: new Date(cur), days, balance: bal, interest, principal_pay, payment, isLast });
+        prev = cur;
+    }
 
-        function formatCurrency(num) {
-            return Math.round(num).toLocaleString('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
+    return { regularPayment: pay, totalInterest, totalPayment: rows.reduce((s, r) => s + r.payment, 0), rows };
+}
 
-        function formatThaiDate(date) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(date).toLocaleDateString('th-TH', options);
-        }
+// ─── Validate + Calculate ─────────────────────────────────────────
+function calculateLoan() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const numMonths = parseInt(document.getElementById('numMonths').value);
+    const startDate = document.getElementById('startDate').value;
+    const payType   = document.getElementById('paymentType').value;
+    const customD   = document.getElementById('customPaymentDate').value;
 
-        function getDaysBetween(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
-        }
+    // Validate
+    let ok = true;
+    if (!principal || principal <= 0 || principal > selectedProduct.maxLoan) {
+        showErr('errPrincipal', `กรอกวงเงิน 1 – ${fmt(selectedProduct.maxLoan)} บาท`); ok = false;
+    } else { hideErr('errPrincipal'); }
 
-        function getLastDayOfMonth(date) {
-            const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-            return new Date(nextMonth - 1);
-        }
+    if (!numMonths || numMonths < 1 || numMonths > selectedProduct.maxTerm) {
+        showErr('errPrincipal', (ok ? '' : document.getElementById('errPrincipal').textContent + ' | ') +
+            `จำนวนงวดต้องไม่เกิน ${selectedProduct.maxTerm}`);
+        ok = false;
+    }
 
-        document.getElementById('firstPaymentDate').addEventListener('change', function() {
-            const customDateInput = document.getElementById('customPaymentDate');
-            if (this.value === 'custom') {
-                customDateInput.classList.remove('hidden');
-            } else {
-                customDateInput.classList.add('hidden');
-                customDateInput.value = '';
-            }
-        });
+    if (!startDate) { alert('กรุณาเลือกวันเริ่มกู้'); return; }
 
-        function calculatePaymentSchedule(principal, annualRate, numMonths, startDate, firstPaymentDate) {
-            const dailyRate = annualRate / 100 / 365;
-            const startDateObj = new Date(startDate);
+    // First payment date
+    const sd = new Date(startDate);
+    let firstPay;
+    if (payType === 'auto_same')  firstPay = endOfMonth(sd);
+    else if (payType === 'auto_next') firstPay = new Date(sd.getFullYear(), sd.getMonth() + 2, 0);
+    else {
+        if (!customD) { alert('กรุณากรอกวันชำระงวดแรก'); return; }
+        firstPay = new Date(customD);
+        if (firstPay <= sd) { showErr('errDate', null); document.getElementById('errDate').classList.add('show'); return; }
+        document.getElementById('errDate').classList.remove('show');
+    }
 
-            let lowPayment = principal / numMonths;
-            let highPayment = principal / numMonths * 2;
-            let regularPayment = (lowPayment + highPayment) / 2;
+    if (!ok) return;
 
-            for (let iteration = 0; iteration < 100; iteration++) {
-                regularPayment = (lowPayment + highPayment) / 2;
-                let balance = principal;
-                let tempPreviousDate = new Date(startDateObj);
-                let tempCurrentPaymentDate = new Date(firstPaymentDate);
+    const result = calcSchedule(principal, selectedProduct.rate, numMonths, sd, firstPay);
+    const roundedPayment = roundUpTo50(result.regularPayment);
+    lastResult = { ...result, principal, numMonths, annualRate: selectedProduct.rate };
 
-                for (let i = 1; i <= numMonths; i++) {
-                    const daysInPeriod = getDaysBetween(tempPreviousDate, tempCurrentPaymentDate);
-                    const interest = balance * dailyRate * daysInPeriod;
-                    const principalPayment = regularPayment - interest;
-                    balance -= principalPayment;
+    // Update summary (แสดงยอดปัดแล้วใน highlight, ยอดจริงใน interest/total)
+    document.getElementById('sumMonthly').textContent  = fmtB(roundedPayment);
+    document.getElementById('sumTerms').textContent    = fmt(numMonths) + ' งวด';
+    document.getElementById('sumInterest').textContent = fmtB(result.totalInterest);
+    document.getElementById('sumTotal').textContent    = fmtB(result.totalPayment);
+    document.getElementById('summaryBar').classList.add('show');
 
-                    tempPreviousDate = new Date(tempCurrentPaymentDate);
-                    tempCurrentPaymentDate.setMonth(tempCurrentPaymentDate.getMonth() + 1);
-                }
+    // Message: ทางการ, ยอดปัดแล้ว
+    const monthlyRate = (selectedProduct.rate / 12).toFixed(2);
+    document.getElementById('messageBox').value =
+`จำนวนเงินกู้: ${fmt(principal)} บาท
+อัตราดอกเบี้ย: ${monthlyRate}% ต่อเดือน (${selectedProduct.rate}% ต่อปี)
+ระยะเวลา: ${numMonths} งวด
+ชำระเดือนละ: ${fmt(roundedPayment)} บาท`;
+    document.getElementById('copySection').classList.add('show');
 
-                if (Math.abs(balance) < 0.01) {
-                    break;
-                }
+    // Render table
+    renderTable(result.rows);
 
-                if (balance > 0) {
-                    lowPayment = regularPayment;
-                } else {
-                    highPayment = regularPayment;
-                }
-            }
+    // Scroll to summary
+    document.getElementById('summaryBar').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-            let balance = principal;
-            let tempPreviousDate = new Date(startDateObj);
-            let tempCurrentPaymentDate = new Date(firstPaymentDate);
-            let totalInterest = 0;
+function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (msg) el.textContent = msg;
+    el.classList.add('show');
+}
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
 
-            for (let i = 1; i <= numMonths; i++) {
-                const daysInPeriod = getDaysBetween(tempPreviousDate, tempCurrentPaymentDate);
-                const interest = balance * dailyRate * daysInPeriod;
-                totalInterest += interest;
-                const principalPayment = regularPayment - interest;
-                balance -= principalPayment;
+// ─── Table ────────────────────────────────────────────────────────
+function renderTable(rows) {
+    document.getElementById('tableBody').innerHTML = rows.map(r => `
+        <tr${r.isLast ? ' class="last-row"' : ''}>
+            <td>${r.n}</td>
+            <td style="text-align:left;white-space:nowrap">${fmtDate(r.date)}</td>
+            <td>${r.days}</td>
+            <td>${fmt(r.balance)}</td>
+            <td>${fmt(r.interest)}</td>
+            <td>${fmt(r.principal_pay)}</td>
+            <td style="font-weight:600;color:#1B5E20">${fmt(r.payment)}</td>
+        </tr>
+    `).join('');
+}
 
-                tempPreviousDate = new Date(tempCurrentPaymentDate);
-                tempCurrentPaymentDate.setMonth(tempCurrentPaymentDate.getMonth() + 1);
-            }
+function showTable() {
+    if (!lastResult) { calculateLoan(); }
+    if (lastResult) document.getElementById('modalOverlay').classList.add('open');
+}
 
-            const totalPayment = regularPayment * numMonths;
+function closeModal(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+    document.getElementById('modalOverlay').classList.remove('open');
+}
 
-            return { regularPayment, totalInterest, totalPayment };
-        }
+// ─── Copy ─────────────────────────────────────────────────────────
+async function copyMsg() {
+    const text = document.getElementById('messageBox').value;
+    const ok   = document.getElementById('copyOk');
+    try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+        else { const t = document.getElementById('messageBox'); t.select(); document.execCommand('copy'); }
+        ok.textContent = '✓ คัดลอกเรียบร้อย';
+        setTimeout(() => ok.textContent = '', 2000);
+    } catch { alert('ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง'); }
+}
 
-        function calculateLoan() {
-            const principal = parseFloat(document.getElementById('principal').value);
-            const annualRate = parseFloat(document.getElementById('rate').value);
-            const years = parseFloat(document.getElementById('years').value);
-            const numMonths = parseFloat(document.getElementById('numMonths').value);
-            const startDate = document.getElementById('startDate').value;
-            const paymentType = document.getElementById('firstPaymentDate').value;
-            const customPaymentDate = document.getElementById('customPaymentDate').value;
-
-            if (isNaN(principal) || isNaN(annualRate) || isNaN(years) || principal <= 0 || years <= 0 || !startDate || isNaN(numMonths) || numMonths <= 0) {
-                alert('กรุณากรอกข้อมูลให้ครบและถูกต้อง');
-                return;
-            }
-
-            if (paymentType === 'custom' && !customPaymentDate) {
-                alert('กรุณากรอกวันชำระงวดแรก');
-                return;
-            }
-
-            let firstPaymentDate = null;
-            if (paymentType === 'auto_same') {
-                const startDateObj = new Date(startDate);
-                firstPaymentDate = getLastDayOfMonth(startDateObj);
-            } else if (paymentType === 'auto_next') {
-                const startDateObj = new Date(startDate);
-                const nextMonth = new Date(startDateObj.getFullYear(), startDateObj.getMonth() + 2, 0);
-                firstPaymentDate = nextMonth;
-            } else {
-                firstPaymentDate = new Date(customPaymentDate);
-            }
-
-            const { regularPayment, totalInterest, totalPayment } = calculatePaymentSchedule(
-                principal,
-                annualRate,
-                numMonths,
-                startDate,
-                firstPaymentDate
-            );
-
-            document.getElementById('monthlyPayment').textContent = formatCurrency(regularPayment);
-            document.getElementById('totalPayment').textContent = formatCurrency(totalPayment);
-            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
-            document.getElementById('totalMonths').textContent = formatNumber(numMonths) + ' งวด';
-
-            generateSchedule(principal, annualRate, numMonths, startDate, firstPaymentDate, regularPayment);
-            generateMessage(principal, annualRate, numMonths, regularPayment);
-        }
-
-        function generateSchedule(principal, annualRate, months, startDate, firstPaymentDate, regularPayment) {
-            let balance = principal;
-            let currentPaymentDate = new Date(firstPaymentDate);
-            let previousDate = new Date(startDate);
-            const rows = [];
-            const dailyRate = annualRate / 100 / 365;
-
-            for (let i = 1; i <= months; i++) {
-                const daysInPeriod = getDaysBetween(previousDate, currentPaymentDate);
-                const interest = balance * dailyRate * daysInPeriod;
-                const principalPayment = regularPayment - interest;
-                balance -= principalPayment;
-
-                if (balance < 0.01) balance = 0;
-
-                const dateStr = formatThaiDate(currentPaymentDate);
-
-                rows.push(`
-                    <tr>
-                        <td>${i}</td>
-                        <td>${dateStr}</td>
-                        <td>${daysInPeriod} วัน</td>
-                        <td>${formatNumber(balance + principalPayment)}</td>
-                        <td>${formatNumber(interest)}</td>
-                        <td>${formatNumber(principalPayment)}</td>
-                        <td>${formatNumber(regularPayment)}</td>
-                    </tr>
-                `);
-
-                previousDate = new Date(currentPaymentDate);
-                currentPaymentDate.setMonth(currentPaymentDate.getMonth() + 1);
-            }
-
-            document.getElementById('scheduleTable').innerHTML = rows.join('');
-        }
-
-        function toggleSchedule() {
-            const container = document.getElementById('tableContainer');
-            container.classList.toggle('hidden');
-        }
-
-        function generateMessage(principal, annualRate, months, regularPayment) {
-            const monthlyRate = (annualRate / 12).toFixed(2);
-            const principalFormatted = Math.round(principal).toLocaleString('th-TH');
-            const paymentFormatted = Math.round(regularPayment).toLocaleString('th-TH');
-
-            const message = `จำนวนเงินกู้: ${principalFormatted} บาท
-ระยะเวลา: ${months} เดือน
-อัตราดอกเบี้ย: ${monthlyRate}% ต่อเดือน
-ชำระเดือนละ: ฿${paymentFormatted}`;
-
-            document.getElementById('messageBox').value = message;
-        }
-
-        function copyToClipboard() {
-            const textarea = document.getElementById('messageBox');
-            textarea.select();
-            document.execCommand('copy');
-
-            const msg = document.getElementById('successMsg');
-            msg.classList.add('show');
-            setTimeout(() => {
-                msg.classList.remove('show');
-            }, 2000);
-        }
-
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('startDate').value = today;
-
-        calculateLoan();
-    </script>
+// ─── Init ─────────────────────────────────────────────────────────
+document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+renderProducts();
+</script>
 </body>
 </html>
